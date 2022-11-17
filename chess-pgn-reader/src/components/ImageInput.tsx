@@ -1,17 +1,13 @@
-import { useState } from "react";
 import ImageUploading, { ImageListType } from "react-images-uploading";
-import { map } from "lodash";
-export default function Toto() {
-  const [image, setImage] = useState<ImageListType>([]);
-
+export default function ImageInput({ PGNImage, setPGNImage }) {
   const onChange = (imageList) => {
     // data for submit
-    setImage(imageList);
+    setPGNImage(imageList);
   };
   return (
     <ImageUploading
       multiple={false}
-      value={image}
+      value={PGNImage}
       onChange={onChange}
       dataURLKey="data_url"
       acceptType={["jpg", "png", "pdf"]}
@@ -33,15 +29,6 @@ export default function Toto() {
           >
             Click or Drop here
           </button>
-          {map(imageList, (image, index) => (
-            <div key={index} className="image-item">
-              <img src={image.data_url} alt="" width="500" />
-              <div className="image-item__btn-wrapper">
-                <button onClick={() => onImageUpdate(index)}>Update</button>
-                <button onClick={() => onImageRemove(index)}>Remove</button>
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </ImageUploading>
