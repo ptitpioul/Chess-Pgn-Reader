@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Stage, Layer, Rect, Image as KonvaImage } from "react-konva";
+import { map, filter } from "lodash";
 
-export default function RectangleDrawer({ imageList }) {
-  const [annotations, setAnnotations] = useState([]);
+export default function RectangleDrawer({
+  imageList,
+  annotations,
+  setAnnotations,
+}) {
   const [newAnnotation, setNewAnnotation] = useState([]);
-
   const handleMouseDown = (event) => {
     if (newAnnotation.length === 0) {
       const { x, y } = event.target.getStage().getPointerPosition();
-      setNewAnnotation([{ x, y, width: 0, height: 0, key: "0" }]);
+      setNewAnnotation([{ x, y, width: 0, height: 0 }]);
     }
   };
 
@@ -22,13 +25,9 @@ export default function RectangleDrawer({ imageList }) {
         y: sy,
         width: x - sx,
         height: y - sy,
-        key: annotations.length + 1,
       };
-      console.log(annotationToAdd);
-
-      annotations.push(annotationToAdd);
       setNewAnnotation([]);
-      setAnnotations(annotations);
+      setAnnotations([...annotations, annotationToAdd]);
     }
   };
 
@@ -43,26 +42,30 @@ export default function RectangleDrawer({ imageList }) {
           y: sy,
           width: x - sx,
           height: y - sy,
-          key: "0",
         },
       ]);
     }
   };
   const annotationsToDraw = [...annotations, ...newAnnotation];
 
+  const removeFromAnnotations = (key) => {
+    const newAnnotations = filter(annotations, (_, index) => index !== key);
+    console.log(annotations, newAnnotations);
+    setAnnotations(newAnnotations);
+  };
   const PGN = new Image(); // Image constructor
   PGN.src = imageList[0]?.data_url || "";
   return (
     <Stage
-      width={500}
-      height={800}
+      width={window.innerWidth}
+      height={window.innerHeight}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
     >
       <Layer>
-        <KonvaImage image={PGN} width={500} height={800} />
-        {annotationsToDraw.map((value, key) => {
+        <KonvaImage image={PGN} />
+        {map(annotationsToDraw, (value, key) => {
           return (
             <Rect
               key={key}
@@ -72,6 +75,7 @@ export default function RectangleDrawer({ imageList }) {
               height={value.height}
               fill="transparent"
               stroke="black"
+              onClick={() => removeFromAnnotations(key)}
             />
           );
         })}

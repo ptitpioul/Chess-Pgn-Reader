@@ -10,7 +10,7 @@ export default function ImageInput({ PGNImage, setPGNImage }) {
       value={PGNImage}
       onChange={onChange}
       dataURLKey="data_url"
-      acceptType={["jpg", "png", "pdf"]}
+      acceptType={["jpeg", "jpg", "png", "pdf"]}
     >
       {({
         imageList,
