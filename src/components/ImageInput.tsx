@@ -21,7 +21,8 @@ export default function ImageInput({ PGNImage, setPGNImage }) {
         dragProps,
       }) => (
         // write your building UI
-        <div className="upload__image-wrapper">
+        // <div className="upload__image-wrapper">
+        <div>
           <button
             style={isDragging ? { color: "green" } : {}}
             onClick={onImageUpload}
