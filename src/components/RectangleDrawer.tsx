@@ -57,8 +57,8 @@ export default function RectangleDrawer({
   PGN.src = imageList[0]?.data_url || "";
   return (
     <Stage
-      width={PGN.width}
-      height={PGN.height}
+      width={PGN?.width}
+      height={PGN?.height}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
