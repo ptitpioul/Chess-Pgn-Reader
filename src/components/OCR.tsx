@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createWorker } from "tesseract.js";
-import { map, head } from "lodash";
+import { map, split } from "lodash";
 import "../App.css";
 
 const formatToRectangles = (annotations) => {
@@ -12,8 +12,11 @@ const formatToRectangles = (annotations) => {
   }));
 };
 
+const formatMoves = (whiteMoves, blackMoves) => {
+  return map(blackMoves, (move, key) => whiteMoves[key] + "  -  " + move);
+};
 export default function OCR({ PGNImage, annotations }) {
-  const [ocr, setOcr] = useState("");
+  const [ocr, setOcr] = useState([]);
   const [progress, setProgress] = useState(0);
 
   const worker = createWorker({
@@ -26,20 +29,29 @@ export default function OCR({ PGNImage, annotations }) {
   const convertImageToText = async () => {
     if (!PGNImage) return;
     const rectangles = formatToRectangles(annotations);
-    const rectangle = head(rectangles);
-    console.log(annotations, rectangles, rectangle);
     await worker.load();
     await worker.loadLanguage("LCDDot_FT_500");
     await worker.initialize("LCDDot_FT_500");
-    const {
-      data: { text },
-    } = await worker.recognize(PGNImage, { rectangle });
-    setOcr(text);
+    await worker.setParameters({
+      tessedit_char_whitelist: "|iIXPBRNQKabcdefghx012345678+-O",
+    });
+    const values = [];
+    for (let i = 0; i < rectangles.length; i++) {
+      const {
+        data: { text },
+      } = await worker.recognize(PGNImage, { rectangle: rectangles[i] });
+      values.push(text);
+    }
+    const formatedMoves = formatMoves(
+      split(values[0], "\n"),
+      split(values[1], "\n")
+    );
+    setOcr(formatedMoves);
     await worker.terminate();
   };
 
   useEffect(() => {
-    if (annotations.length > 0) {
+    if (annotations.length == 2) {
       convertImageToText();
     }
   }, [PGNImage, annotations]);
@@ -55,7 +67,11 @@ export default function OCR({ PGNImage, annotations }) {
         </div>
       )}
       <div className="display-flex">
-        <p>{ocr}</p>
+        <ol>
+          {map(ocr, (move, key) => (
+            <li key={key}>{move}</li>
+          ))}
+        </ol>
       </div>
     </div>
   );
